@@ -18,6 +18,7 @@ module Mongoid #:nodoc
       #
       # Returns: <tt>Mongo::Collection</tt>
       def collection
+        #debugger
         raise Errors::InvalidCollection.new(self) if embedded?
         self._collection || set_collection
         add_indexes; self._collection

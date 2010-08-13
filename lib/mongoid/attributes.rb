@@ -111,7 +111,7 @@ module Mongoid #:nodoc:
     def _type=(new_type)
       @attributes["_type"] = new_type
     end
-
+    
     # Write a single attribute to the +Document+ attribute +Hash+. This will
     # also fire the before and after update callbacks, and perform any
     # necessary typecasting.

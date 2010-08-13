@@ -1,4 +1,4 @@
-# encoding: utf-8
+  # encoding: utf-8
 module Mongoid #:nodoc
   module Associations #:nodoc
     class Proxy #:nodoc

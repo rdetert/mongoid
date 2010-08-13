@@ -16,8 +16,9 @@ module Mongoid #:nodoc:
     # A +Hash+ of all atomic updates that need to occur.
     def _updates
       processed = {}
-      
+      #debugger
       _children.inject({ "$set" => _sets, "$pushAll" => {}, :other => {} }) do |updates, child|
+        #debugger
         changes = child._sets
         updates["$set"].update(changes)
         processed[child.class] = true unless changes.empty?
@@ -25,6 +26,7 @@ module Mongoid #:nodoc:
         target = processed.has_key?(child.class) ? :other : "$pushAll"
         
         child._pushes.each do |attr, val|
+          #debugger
           if updates[target].has_key?(attr)
             updates[target][attr] << val
           else
@@ -40,11 +42,17 @@ module Mongoid #:nodoc:
     protected
     # Get all the push attributes that need to occur.
     def _pushes
-      (new_record? && embedded_many? && !_parent.new_record?) ? { _path => raw_attributes } : {}
+
+      #debugger
+      
+      (new_record? && (embedded_many? || self_nested?) && !_parent.new_record?) ? { _path => raw_attributes } : {}
+      #(new_record? && (embedded_many? || self_nested) && !_parent.new_record?) ? { use_path => raw_attributes } : {}
+      
     end
 
     # Get all the attributes that need to be set.
     def _sets
+      #debugger
       if changed? && !new_record?
         setters
       else

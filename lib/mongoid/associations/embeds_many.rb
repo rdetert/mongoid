@@ -15,7 +15,8 @@ module Mongoid #:nodoc:
           @target << doc
           doc._index = @target.size - 1
           doc.notify
-        end
+          debugger
+          doc.detect_self_nestedness
       end
 
       alias :concat :<<
@@ -147,6 +148,10 @@ module Mongoid #:nodoc:
           build_children_from_attributes(parent.raw_attributes[@association_name])
         end
         extends(options)
+        
+        #build back singleton instance methods self_nested? and _path
+        #debugger
+        
       end
 
       # If the target array does not respond to the supplied method then try to
@@ -233,6 +238,9 @@ module Mongoid #:nodoc:
             child = klass ? klass.instantiate(attrs) : @klass.instantiate(attrs)
             child.parentize(@parent, @association_name)
             child._index = index
+            
+            debugger
+            
             @target << child
           end
         end

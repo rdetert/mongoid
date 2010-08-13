@@ -195,6 +195,7 @@ module Mongoid #:nodoc:
         conditions[:_id] = conditions[:id]
         conditions.delete(:id)
       end
+      #debugger
       return klass.criteria.where(conditions).extras(params)
     end
 

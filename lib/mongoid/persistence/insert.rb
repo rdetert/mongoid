@@ -43,6 +43,7 @@ module Mongoid #:nodoc:
             @options.merge(:validate => @validate)
           ).persist
         else
+          #debugger
           @collection.insert(@document.raw_attributes, @options)
         end
       end

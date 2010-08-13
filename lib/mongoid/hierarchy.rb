@@ -63,6 +63,7 @@ module Mongoid #:nodoc
       #
       # <tt>address.parentize(person, :addresses)</tt>
       def parentize(object, association_name)
+        #debugger
         self._parent = object
         self.association_name = association_name.to_s
       end

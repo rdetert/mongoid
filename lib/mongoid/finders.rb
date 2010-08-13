@@ -66,6 +66,7 @@ module Mongoid #:nodoc:
       raise Errors::InvalidOptions.new("Calling Document#find with nil is invalid") if args[0].nil?
       type = args.delete_at(0) if args[0].is_a?(Symbol)
       criteria = Criteria.translate(self, *args)
+      #debugger
       case type
       when :first then return criteria.one
       when :last then return criteria.last

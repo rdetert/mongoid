@@ -29,6 +29,38 @@ module Mongoid #:nodoc:
         end
       end
 
+      #battle with self-nest
+      #bubble up parent to find it's place in the world
+      def detect_self_nestedness
+        if not embedded?  #this means it is not explicity embedded_in.
+          found = false
+          @pos = []
+          @d = doc
+          until found or not @d
+            @pos << @d.association_name
+            @d = doc._parent
+            #debugger
+            found_index = @d.associations.keys.index(doc.association_name)
+
+            found = @d.associations[@d.associations.keys[found_index]].association ==  Mongoid::Associations::EmbedsMany if found_index
+            ###
+            # need to add a check for data type. for example,  
+            #   if embeds_many :cats, then you cannot push a Dog 
+            ###
+            #if found 
+            #  found = @d.associations.keys[found_index].singularize.downcase == doc.class.to_s.downcase
+            #  raise Exception unless found 
+            #end
+          end
+          #debugger
+          puts "def _path; #{@pos.reverse.join(".")}; end"
+          doc.instance_eval "def _path; \"#{@pos.reverse.join(".")}\"; end" if found
+          doc.instance_eval "def self_nested?; #{found}; end"
+        else
+          doc.instance_eval "def self_nested?; false; end"
+        end
+      end
+
       # Returns all types to query for when using this class as the base.
       # *subclasses* is from activesupport. Note that a bug in *subclasses*
       # causes the first call to only return direct children, hence

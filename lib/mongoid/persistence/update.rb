@@ -58,9 +58,12 @@ module Mongoid #:nodoc:
       protected
       # Update the document in the database atomically.
       def update
+        #debugger
         updates = @document._updates
+        #debugger
         unless updates.empty?
           other_pushes = updates.delete(:other)
+          #debugger
           @collection.update(@document._selector, updates, @options.merge(:multi => false))
           @collection.update(
             @document._selector,

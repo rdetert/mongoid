@@ -120,6 +120,7 @@ module Mongoid #:nodoc:
     # A +Boolean+ for updates.
     def upsert(options = {})
       if new_record?
+        #debugger
         insert(options).persisted?
       else
         update(options)

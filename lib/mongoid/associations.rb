@@ -34,6 +34,7 @@ module Mongoid # :nodoc:
 
     # are we in an embeds_many?
     def embedded_many?
+      #debugger
       embedded? && _parent.associations[association_name].association == EmbedsMany
     end
 
@@ -75,6 +76,7 @@ module Mongoid # :nodoc:
       #
       # <tt>true</tt> if embedded, <tt>false</tt> if not.
       def embedded?
+        #debugger
         !!self.embedded
       end
 
@@ -101,6 +103,7 @@ module Mongoid # :nodoc:
       def embedded_in(name, options = {}, &block)
         opts = optionize(name, options, nil, &block)
         Associations::EmbeddedIn.validate_options(opts)
+        #debugger
         self.embedded = true
         associate(Associations::EmbeddedIn, opts)
       end
@@ -125,6 +128,7 @@ module Mongoid # :nodoc:
       #     embedded_in :person, :inverse_of => :addresses
       #   end
       def embeds_many(name, options = {}, &block)
+        #debugger
         opts = optionize(name, options, nil, &block)
         Associations::EmbedsMany.validate_options(opts)
         associate(Associations::EmbedsMany, opts)
@@ -274,11 +278,13 @@ module Mongoid # :nodoc:
       #
       # <tt>Person.associate(EmbedsMany, { :name => :addresses })</tt>
       def associate(type, options)
+        #debugger
         name = options.name.to_s
         associations[name] = MetaData.new(type, options)
         define_method(name) do
           memoized(name) do
             proxy = type.new(self, options)
+            #debugger
             case proxy
             when Associations::ReferencesOne,
                  Associations::EmbedsOne,
