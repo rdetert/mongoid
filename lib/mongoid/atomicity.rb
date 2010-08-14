@@ -16,22 +16,37 @@ module Mongoid #:nodoc:
     # A +Hash+ of all atomic updates that need to occur.
     def _updates
       processed = {}
-      #debugger
       _children.inject({ "$set" => _sets, "$pushAll" => {}, :other => {} }) do |updates, child|
-        #debugger
         changes = child._sets
         updates["$set"].update(changes)
         processed[child.class] = true unless changes.empty?
         
         target = processed.has_key?(child.class) ? :other : "$pushAll"
-        
+        debugger if child.class == Essay
+        child.build_hash_path
         child._pushes.each do |attr, val|
-          #debugger
-          if updates[target].has_key?(attr)
-            updates[target][attr] << val
+
+          @path ||= ""
+          #build out a chain from the root so $pushAll puts it in the right place
+          if child._parent
+            #bubble up
+            @d = child
+            debugger if child.class == Essay
+            while false and @d
+            end
+            @path = val
           else
-            updates[target].update({attr => [val]})
+            @path = val
           end
+          
+          #debugger
+          if updates[target].has_key?(child._parent._id)
+            updates[target][child._parent._id] << {attr => [@path]}
+          else
+             updates[target].update(child._parent._id => [{attr => [@path]}])
+          end
+          debugger if child.class == Essay
+
         end
         updates
       end.delete_if do |key, value|
@@ -42,17 +57,14 @@ module Mongoid #:nodoc:
     protected
     # Get all the push attributes that need to occur.
     def _pushes
-
-      #debugger
-      
-      (new_record? && (embedded_many? || self_nested?) && !_parent.new_record?) ? { _path => raw_attributes } : {}
+      debugger if self.class == Essay
+      (new_record? && embedded_many? && !_parent.new_record?) ? { (_path.is_a?(Array) ? _path.last[_id] : _path) => raw_attributes } : {}
       #(new_record? && (embedded_many? || self_nested) && !_parent.new_record?) ? { use_path => raw_attributes } : {}
       
     end
 
     # Get all the attributes that need to be set.
     def _sets
-      #debugger
       if changed? && !new_record?
         setters
       else

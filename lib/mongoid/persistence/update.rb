@@ -58,13 +58,30 @@ module Mongoid #:nodoc:
       protected
       # Update the document in the database atomically.
       def update
-        #debugger
         updates = @document._updates
-        #debugger
         unless updates.empty?
           other_pushes = updates.delete(:other)
-          #debugger
-          @collection.update(@document._selector, updates, @options.merge(:multi => false))
+          updates.each do |update_type, val|  # $set or $pushAll
+            if update_type == "$set"
+              @collection.update(@document._selector, {update_type => val}, @options.merge(:multi => false))
+              next
+            end
+            val.each do |selector, actual_updates|
+              actual_updates.each do |actual_update|
+                #pp actual_update
+                #debugger
+                if (actual_update["papers"].first["_type"] == Essay rescue false)
+                  debugger
+                  if @document._selector["_id"] != selector
+                    #gotta build the path to it cuz we're not at the root
+                    
+                  end
+                end
+                @collection.update({"_id" => selector}, {update_type => actual_update}, @options.merge(:multi => false))
+                #@collection.update(@document._selector, updates, @options.merge(:multi => false))
+              end
+            end
+          end
           @collection.update(
             @document._selector,
             { "$pushAll" => other_pushes },

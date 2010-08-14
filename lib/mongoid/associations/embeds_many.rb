@@ -15,8 +15,8 @@ module Mongoid #:nodoc:
           @target << doc
           doc._index = @target.size - 1
           doc.notify
-          debugger
-          doc.detect_self_nestedness
+          #debugger if doc.class == Essay
+        end
       end
 
       alias :concat :<<
@@ -238,9 +238,6 @@ module Mongoid #:nodoc:
             child = klass ? klass.instantiate(attrs) : @klass.instantiate(attrs)
             child.parentize(@parent, @association_name)
             child._index = index
-            
-            debugger
-            
             @target << child
           end
         end

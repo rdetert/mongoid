@@ -63,9 +63,28 @@ module Mongoid #:nodoc
       #
       # <tt>address.parentize(person, :addresses)</tt>
       def parentize(object, association_name)
-        #debugger
         self._parent = object
         self.association_name = association_name.to_s
+      end
+      
+      def build_hash_path
+        @d = self
+        @path = []
+        while @d  #bubble up to the parent
+          #debugger
+          @path << {@d._id => @d.association_name}
+          @d = @d._parent
+        end
+        #pp @path.reverse
+        def self._path      #singleton
+          @path.reverse
+        end
+        unless (embedded_many? rescue false)
+          found_index = associations.keys.index(association_name)
+          embedded_many = associations[associations.keys[found_index]].association ==  Mongoid::Associations::EmbedsMany if found_index
+          debugger if self.class == Essay
+          instance_eval "def embedded_many?; #{embedded_many}; end"
+        end
       end
 
       # Return the root +Document+ in the object graph. If the current +Document+
