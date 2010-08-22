@@ -59,16 +59,13 @@ module Mongoid #:nodoc:
       # Update the document in the database atomically.
       def update
         
-        
-        @mongo_path_hash = {}  #map the objects to the path needed by Mongo for the appropriate sub document
-                            # key = document
-                            # value = subdocument path e.g. movies.0.actors.8
-        #build materialized paths so mongo plays nice with nested updates
+        #Added by rdetert
+        # build materialized paths for every subdocument so mongo plays nice with nested $pushAll
+        # obviously not optimal since it recomputes every time an update is called
         def build_mpath(node, mpath)
           mpath.slice!(0) if mpath[0,1] == "."
           if node.is_a?(Hash)
             node[:_path] = mpath
-            @mongo_path_hash[node] = mpath
             node.each do |k,v|
               if v.is_a?(Array)
                 i = 0
@@ -86,9 +83,8 @@ module Mongoid #:nodoc:
           @_root = @document._parent
         end
 
-        build_mpath(@_root.raw_attributes, "")
+        build_mpath(@_root.raw_attributes, "")    #money method
         
-        pp @mongo_path_hash
         
         updates = @document._updates
         unless updates.empty?
@@ -100,7 +96,7 @@ module Mongoid #:nodoc:
             end
             val.each do |selector, actual_updates|
               actual_updates.each do |actual_update|
-                debugger
+                #debugger
                 @collection.update(@document._selector, {update_type => actual_update}, @options.merge(:multi => false))
                 #@collection.update(@document._selector, updates, @options.merge(:multi => false))
               end

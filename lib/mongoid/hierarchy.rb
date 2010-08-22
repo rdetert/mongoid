@@ -67,22 +67,13 @@ module Mongoid #:nodoc
         self.association_name = association_name.to_s
       end
       
-      def build_hash_path
-        @d = self
-        @path = []
-        while @d  #bubble up to the parent
-          #debugger
-          @path << {@d._id => @d.association_name}
-          @d = @d._parent
-        end
-        #pp @path.reverse
-        def self._path      #singleton
-          @path.reverse
-        end
+      #Added by rdetert
+      # In atomicity#_pushes, checks for embedded_many? We will force it to be true if it is self nested so the test passes
+      #
+      def embedded_many_for_real
         unless (embedded_many? rescue false)
           found_index = associations.keys.index(association_name)
           embedded_many = associations[associations.keys[found_index]].association ==  Mongoid::Associations::EmbedsMany if found_index
-          debugger if self.class == Essay
           instance_eval "def embedded_many?; #{embedded_many}; end"
         end
       end

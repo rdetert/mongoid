@@ -22,32 +22,14 @@ module Mongoid #:nodoc:
         processed[child.class] = true unless changes.empty?
         
         target = processed.has_key?(child.class) ? :other : "$pushAll"
-        debugger if child.class == Essay
-        child.build_hash_path
+        child.embedded_many_for_real
         child._pushes.each do |attr, val|
-
-          @path ||= ""
-          #build out a chain from the root so $pushAll puts it in the right place
-          if child._parent
-            #bubble up
-            @d = child
-            #debugger if child.class == Essay
-            while false and @d
-            end
-            @path = val
-          else
-            @path = val
-          end
-          
-          #debugger
-          attr = @path[:_path][0,@path[:_path].rindex(".")]
+          attr = val[:_path][0,val[:_path].rindex(".")]
           if updates[target].has_key?(child._parent._id)
-            updates[target][child._parent._id] << {attr => [@path]}
+            updates[target][child._parent._id] << {attr => [val]}
           else
-             updates[target].update(child._parent._id => [{attr => [@path]}])
+             updates[target].update(child._parent._id => [{attr => [val]}])
           end
-          #debugger if child.class == Essay
-
         end
         updates
       end.delete_if do |key, value|
@@ -58,10 +40,8 @@ module Mongoid #:nodoc:
     protected
     # Get all the push attributes that need to occur.
     def _pushes
-      debugger if self.class == Essay
       (new_record? && embedded_many? && !_parent.new_record?) ? { (_path.is_a?(Array) ? _path.last[_id] : _path) => raw_attributes } : {}
       #(new_record? && (embedded_many? || self_nested) && !_parent.new_record?) ? { use_path => raw_attributes } : {}
-      
     end
 
     # Get all the attributes that need to be set.
