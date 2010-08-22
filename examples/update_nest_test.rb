@@ -11,8 +11,8 @@ puts "Using Mongoid: #{Mongoid::VERSION}"
 
 Mongoid.master = Mongo::Connection.new.db("nest_test")
 
-# If command line arg is true, then create the root, then save, then make changes so that _update gets called
-# If false (the default) then one big insert is made (as of this test, the initial large insert has always worked)
+# If command line arg is true, then create the root, then save, then pull it back from the db, then make changes so that _update gets called
+# If false (the default) then one big insert is made (initial large insert has always worked)
 #
 @create_first = (ARGV.first.blank? ? true : ARGV.first) == "true"
 
@@ -171,36 +171,100 @@ end
 
 __END__
 
-#class Person
-#  include Mongoid::Document
-#  field :name
-#  embedded_in :member, :inverse_of => :members
-#end
-#class Member
-#  include Mongoid::Document
-#  field:name
-#  embeds_many :clubs
-#  embedded_in :club, :inverse_of => :clubs
-#  embeds_many :people
-#end
-#
-#class Club
-#  include Mongoid::Document
-#  field :name
-#  embeds_many :members
-#  embedded_in :member, :inverse_of => :members
-#end
-#
-#Club.delete_all
-#
-#@C = Club.new :name => "golf club"
-#@M = Member.new :name => "elitist"
-#@P = Person.new :name => "Dirk Diggler"
-#
-#@C.members << @M
-#@M.clubs << @C
-#@M.people << @P
-#
-#@C.save
-#__END__
-#
+Mongo Output:
+
+> db.envelopes.find()
+{ "_id" : ObjectId("4c70fbcaf277f9388d00000d"), "_type" : "Envelope", "created_at" : "Sun Aug 22 2010 03:28:26 GMT-0700 (PDT)", "envelopes" : [
+	{
+		"_id" : ObjectId("4c70fbcaf277f9388d00000a"),
+		"_path" : "envelopes.0",
+		"_type" : "Portfolio",
+		"envelopes" : [
+			{
+				"_id" : ObjectId("4c70fbcaf277f9388d00000c"),
+				"_path" : "envelopes.0.envelopes.0",
+				"_type" : "PinkFeatheredEnvelope",
+				"folders" : [
+					{
+						"_id" : ObjectId("4c70fbcaf277f9388d000009"),
+						"_path" : "envelopes.0.envelopes.0.folders.0",
+						"name" : "Stuff About Animals",
+						"publications" : [
+							{
+								"title" : "Fluffy Fights Back",
+								"magazines_published_in" : 3,
+								"_path" : "envelopes.0.envelopes.0.folders.0.publications.0",
+								"_id" : ObjectId("4c70fbcaf277f9388d000006"),
+								"_type" : "Photo"
+							},
+							{
+								"title" : "Making Fluffy Cry",
+								"magazines_published_in" : 88,
+								"_path" : "envelopes.0.envelopes.0.folders.0.publications.1",
+								"_id" : ObjectId("4c70fbcaf277f9388d000007"),
+								"_type" : "Photo"
+							},
+							{
+								"title" : "SPCA Increases Funding",
+								"journal" : "Animal World",
+								"_path" : "envelopes.0.envelopes.0.folders.0.publications.2",
+								"_id" : ObjectId("4c70fbcaf277f9388d000004"),
+								"_type" : "Essay"
+							}
+						]
+					}
+				],
+				"secret_compartments" : [
+					{
+						"_path" : "envelopes.0.envelopes.0.secret_compartments.0",
+						"_id" : ObjectId("4c70fbcaf277f9388d00000f"),
+						"_type" : "FancyEnvelope",
+						"summary" : "Top Secret Compartment"
+					}
+				],
+				"summary" : "To Add Sparkles"
+			}
+		],
+		"from" : "me",
+		"publications" : [
+			{
+				"title" : "World Poverty",
+				"journal" : "National Geographic",
+				"_path" : "envelopes.0.publications.0",
+				"_id" : ObjectId("4c70fbcaf277f9388d000001"),
+				"_type" : "Essay"
+			},
+			{
+				"title" : "Starcraft as Allegory",
+				"journal" : "Nerd Nation",
+				"_path" : "envelopes.0.publications.1",
+				"_id" : ObjectId("4c70fbcaf277f9388d000002"),
+				"_type" : "Essay"
+			},
+			{
+				"title" : "NYC Rain",
+				"magazines_published_in" : 2,
+				"_path" : "envelopes.0.publications.2",
+				"_id" : ObjectId("4c70fbcaf277f9388d000008"),
+				"_type" : "Photo"
+			},
+			{
+				"title" : "How to use Mongoid",
+				"journal" : "Slashdot",
+				"_path" : "envelopes.0.publications.3",
+				"_id" : ObjectId("4c70fbcaf277f9388d000005"),
+				"_type" : "Essay"
+			}
+		],
+		"subject" : "Things That Have Been Professionally Published",
+		"to" : "The World"
+	}
+], "from" : "ryan", "publications" : [
+	{
+		"title" : "Ad Hoc Writing on the Fly",
+		"journal" : "Writer's World",
+		"_path" : "publications.0",
+		"_id" : ObjectId("4c70fbcaf277f9388d00000e"),
+		"_type" : "Essay"
+	}
+], "summary" : "Root Envelope (it's really big)", "to" : "durran", "updated_at" : "Sun Aug 22 2010 03:28:26 GMT-0700 (PDT)" }
