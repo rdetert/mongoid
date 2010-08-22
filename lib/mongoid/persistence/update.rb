@@ -58,6 +58,38 @@ module Mongoid #:nodoc:
       protected
       # Update the document in the database atomically.
       def update
+        
+        
+        @mongo_path_hash = {}  #map the objects to the path needed by Mongo for the appropriate sub document
+                            # key = document
+                            # value = subdocument path e.g. movies.0.actors.8
+        #build materialized paths so mongo plays nice with nested updates
+        def build_mpath(node, mpath)
+          mpath.slice!(0) if mpath[0,1] == "."
+          if node.is_a?(Hash)
+            node[:_path] = mpath
+            @mongo_path_hash[node] = mpath
+            node.each do |k,v|
+              if v.is_a?(Array)
+                i = 0
+                v.each do |elm|
+                  build_mpath(elm, mpath + "." + k + "." + i.to_s)
+                  i = i + 1
+                end
+              end
+            end
+          end
+        end
+        
+        @_root = @document
+        while @document._parent
+          @_root = @document._parent
+        end
+
+        build_mpath(@_root.raw_attributes, "")
+        
+        pp @mongo_path_hash
+        
         updates = @document._updates
         unless updates.empty?
           other_pushes = updates.delete(:other)
@@ -68,16 +100,8 @@ module Mongoid #:nodoc:
             end
             val.each do |selector, actual_updates|
               actual_updates.each do |actual_update|
-                #pp actual_update
-                #debugger
-                if (actual_update["papers"].first["_type"] == Essay rescue false)
-                  debugger
-                  if @document._selector["_id"] != selector
-                    #gotta build the path to it cuz we're not at the root
-                    
-                  end
-                end
-                @collection.update({"_id" => selector}, {update_type => actual_update}, @options.merge(:multi => false))
+                debugger
+                @collection.update(@document._selector, {update_type => actual_update}, @options.merge(:multi => false))
                 #@collection.update(@document._selector, updates, @options.merge(:multi => false))
               end
             end

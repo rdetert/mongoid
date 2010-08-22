@@ -31,7 +31,7 @@ module Mongoid #:nodoc:
           if child._parent
             #bubble up
             @d = child
-            debugger if child.class == Essay
+            #debugger if child.class == Essay
             while false and @d
             end
             @path = val
@@ -40,12 +40,13 @@ module Mongoid #:nodoc:
           end
           
           #debugger
+          attr = @path[:_path][0,@path[:_path].rindex(".")]
           if updates[target].has_key?(child._parent._id)
             updates[target][child._parent._id] << {attr => [@path]}
           else
              updates[target].update(child._parent._id => [{attr => [@path]}])
           end
-          debugger if child.class == Essay
+          #debugger if child.class == Essay
 
         end
         updates
