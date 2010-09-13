@@ -24,7 +24,7 @@ module Mongoid #:nodoc:
         target = processed.has_key?(child.class) ? :other : "$pushAll"
         child.embedded_many_for_real
         child._pushes.each do |attr, val|
-          attr = val[:_mpath][0,val[:_mpath].rindex(".")]
+          attr = val[:mpath][0,val[:mpath].rindex(".")]
           if updates[target].has_key?(child._parent._id)
             updates[target][child._parent._id] << {attr => [val]}
           else
@@ -40,6 +40,7 @@ module Mongoid #:nodoc:
     protected
     # Get all the push attributes that need to occur.
     def _pushes
+      #debugger
       (new_record? && embedded_many? && !_parent.new_record?) ? { (_path.is_a?(Array) ? _path.last[_id] : _path) => raw_attributes } : {}
       #(new_record? && (embedded_many? || self_nested) && !_parent.new_record?) ? { use_path => raw_attributes } : {}
     end

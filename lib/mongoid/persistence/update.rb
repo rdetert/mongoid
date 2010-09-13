@@ -65,7 +65,7 @@ module Mongoid #:nodoc:
         def build_mpath(node, mpath)
           mpath.slice!(0) if mpath[0,1] == "."
           if node.is_a?(Hash)
-            node[:_mpath] = mpath
+            node[:mpath] = mpath
             node.each do |k,v|
               if v.is_a?(Array)
                 i = 0
@@ -85,7 +85,6 @@ module Mongoid #:nodoc:
 
         build_mpath(@_root.raw_attributes, "")    #money method
         
-        
         updates = @document._updates
         unless updates.empty?
           other_pushes = updates.delete(:other)
@@ -96,7 +95,7 @@ module Mongoid #:nodoc:
             end
             val.each do |selector, actual_updates|
               actual_updates.each do |actual_update|
-                #debugger
+                debugger
                 @collection.update(@document._selector, {update_type => actual_update}, @options.merge(:multi => false))
                 #@collection.update(@document._selector, updates, @options.merge(:multi => false))
               end
