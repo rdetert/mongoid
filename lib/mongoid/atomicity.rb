@@ -24,7 +24,7 @@ module Mongoid #:nodoc:
         target = processed.has_key?(child.class) ? :other : "$pushAll"
         child.embedded_many_for_real
         child._pushes.each do |attr, val|
-          attr = val[:_path][0,val[:_path].rindex(".")]
+          attr = val[:_mpath][0,val[:_mpath].rindex(".")]
           if updates[target].has_key?(child._parent._id)
             updates[target][child._parent._id] << {attr => [val]}
           else

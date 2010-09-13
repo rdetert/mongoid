@@ -65,7 +65,7 @@ module Mongoid #:nodoc:
         def build_mpath(node, mpath)
           mpath.slice!(0) if mpath[0,1] == "."
           if node.is_a?(Hash)
-            node[:_path] = mpath
+            node[:_mpath] = mpath
             node.each do |k,v|
               if v.is_a?(Array)
                 i = 0
