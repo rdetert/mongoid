@@ -95,7 +95,7 @@ module Mongoid #:nodoc:
             end
             val.each do |selector, actual_updates|
               actual_updates.each do |actual_update|
-                debugger
+                #debugger
                 @collection.update(@document._selector, {update_type => actual_update}, @options.merge(:multi => false))
                 #@collection.update(@document._selector, updates, @options.merge(:multi => false))
               end
